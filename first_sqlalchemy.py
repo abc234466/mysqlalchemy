@@ -26,12 +26,35 @@ Base.metadata.create_all(engine)
 
 user = User(name='xian', fullname='xian C.', nickname='cookie')
 
-# import ipdb; ipdb.set_trace()
 Session = sessionmaker(bind=engine)
 session = Session()
 session.add(user)
 
 # auto flush magic!
 # <User(name='xian', fullname='xian C.', nickname='{self.nickname}')>
-print(session.query(User).filter_by(name='xian').first())
+print(session.query(User).filter_by(name='xian2').first())
+query_user = session.query(User).filter_by(name='xian').first()
 
+
+# If change the name, then call session.dirty
+query_user.name = 'xian_C'
+print(session.dirty)
+"""
+IdentitySet([<User(name='xian_C', fullname='xian C.',
+             nickname='{self.nickname}')>])
+"""
+
+# We can add multiple data at the same time, then call session.new
+session.add_all([
+    User(name='willy', fullname='willy B.', nickname='will'),
+    User(name='lisa', fullname='lisa A.', nickname='li'),
+])
+
+
+print(session.new)
+"""
+IdentitySet(
+    [<User(name='willy', fullname='willy B.', nickname='{self.nickname}')>,
+     <User(name='lisa', fullname='lisa A.', nickname='{self.nickname}')>]
+)
+"""
